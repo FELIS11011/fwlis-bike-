@@ -1,0 +1,1417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FWLI Biking Device</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ── TOKENS ─────────────────────────────────────────────── */
+:root {
+  --bg:         #ffffff;
+  --bg2:        #fdf8ff;
+  --bg3:        #f8f0ff;
+  --pink:       #ffb3c6;
+  --pink2:      #ff8fab;
+  --pink3:      #ffd6e0;
+  --lavender:   #c77dff;
+  --lav2:       #9d4edd;
+  --lav3:       #e8d5ff;
+  --blue:       #4cc9f0;
+  --blue2:      #0096c7;
+  --blue3:      #caf0f8;
+  --text:       #1a0533;
+  --text2:      #6b5c7e;
+  --muted:      #a89bb8;
+  --border:     rgba(199,125,255,0.18);
+  --border2:    rgba(199,125,255,0.08);
+  --shadow-pink: 0 8px 32px rgba(255,143,171,0.18);
+  --shadow-lav:  0 8px 32px rgba(199,125,255,0.18);
+  --shadow-blue: 0 8px 32px rgba(76,201,240,0.14);
+  --grad-main:   linear-gradient(135deg, #ffb3c6 0%, #c77dff 50%, #4cc9f0 100%);
+  --grad-soft:   linear-gradient(135deg, #ffd6e0 0%, #e8d5ff 50%, #caf0f8 100%);
+  --grad-text:   linear-gradient(135deg, #ff8fab 0%, #c77dff 45%, #4cc9f0 100%);
+}
+
+/* ── RESET ───────────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', system-ui, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ── AMBIENT BLOBS ───────────────────────────────────────── */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 55% 35% at 10% 5%,  rgba(255,179,198,0.20) 0%, transparent 55%),
+    radial-gradient(ellipse 45% 30% at 90% 15%, rgba(76,201,240,0.14) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 50% 95%, rgba(199,125,255,0.12) 0%, transparent 55%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ── LAYOUT ──────────────────────────────────────────────── */
+.page { position: relative; z-index: 1; max-width: 1160px; margin: 0 auto; padding: 0 24px 100px; }
+
+/* ── HEADER ──────────────────────────────────────────────── */
+.hero {
+  text-align: center;
+  padding: 72px 20px 48px;
+}
+.hero-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--grad-soft);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  padding: 6px 18px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: var(--lav2);
+  margin-bottom: 24px;
+}
+.hero-title {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(52px, 9vw, 96px);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 0.92;
+  letter-spacing: -0.02em;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 6px;
+}
+.hero-title-line2 {
+  font-family: 'Playfair Display', serif;
+  font-size: clamp(38px, 7vw, 72px);
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1;
+  color: var(--text2);
+  margin-bottom: 20px;
+}
+.hero-sub {
+  font-size: 13px;
+  color: var(--muted);
+  letter-spacing: 0.10em;
+  text-transform: uppercase;
+  font-weight: 400;
+}
+
+/* ── GRADIENT DIVIDER ────────────────────────────────────── */
+.grad-line {
+  height: 2px;
+  background: var(--grad-main);
+  border-radius: 99px;
+  margin: 8px auto 40px;
+  width: 120px;
+  opacity: 0.6;
+}
+
+/* ── UPLOAD ZONE ─────────────────────────────────────────── */
+.upload-zone {
+  border: 2px dashed rgba(199,125,255,0.30);
+  border-radius: 24px;
+  padding: 52px 32px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: linear-gradient(135deg, rgba(255,214,224,0.25), rgba(232,213,255,0.25), rgba(202,240,248,0.25));
+  margin: 0 0 36px;
+  position: relative;
+  overflow: hidden;
+}
+.upload-zone:hover, .upload-zone.drag {
+  border-color: var(--lavender);
+  box-shadow: var(--shadow-lav);
+  transform: translateY(-3px);
+}
+.upload-icon { font-size: 44px; margin-bottom: 14px; }
+.upload-label {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-style: italic;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 8px;
+}
+.upload-hint { font-size: 13px; color: var(--muted); }
+#file-input { display: none; }
+
+/* ── CARDS ───────────────────────────────────────────────── */
+.card {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 32px;
+  margin-bottom: 20px;
+  box-shadow: 0 2px 20px rgba(199,125,255,0.07);
+}
+.card-title {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 18px;
+  font-weight: 700;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.card-title::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--grad-main);
+  opacity: 0.3;
+  border-radius: 99px;
+}
+
+/* ── STAT GRID ───────────────────────────────────────────── */
+.stat-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 14px;
+}
+.stat-box {
+  background: var(--bg2);
+  border: 1px solid var(--border2);
+  border-radius: 16px;
+  padding: 18px 16px;
+  text-align: center;
+  transition: transform 0.2s, box-shadow 0.2s;
+  position: relative;
+  overflow: hidden;
+}
+.stat-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--grad-main);
+  opacity: 0.6;
+}
+.stat-box:hover { transform: translateY(-3px); box-shadow: var(--shadow-lav); }
+.stat-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+.stat-label {
+  font-size: 10px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  margin-top: 6px;
+  font-weight: 500;
+}
+
+/* ── SCORE RING ──────────────────────────────────────────── */
+.score-section {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  flex-wrap: wrap;
+}
+.score-ring-wrap { position: relative; flex-shrink: 0; }
+.score-ring-wrap svg { display: block; filter: drop-shadow(0 0 20px rgba(199,125,255,0.25)); }
+.score-center {
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.score-number {
+  font-family: 'Playfair Display', serif;
+  font-size: 52px;
+  font-weight: 900;
+  font-style: italic;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1;
+}
+.score-label {
+  font-size: 11px;
+  color: var(--muted);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  margin-top: 4px;
+}
+.score-breakdown { flex: 1; min-width: 240px; }
+.breakdown-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.breakdown-name { font-size: 12px; color: var(--text2); width: 75px; letter-spacing: 0.06em; flex-shrink: 0; font-weight: 500; }
+.breakdown-bar-wrap {
+  flex: 1; height: 7px;
+  background: var(--lav3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+.breakdown-bar { height: 100%; border-radius: 99px; transition: width 1.2s cubic-bezier(0.16,1,0.3,1); }
+.bar-ax { background: linear-gradient(90deg, var(--pink2), var(--lavender)); }
+.bar-ay { background: linear-gradient(90deg, var(--blue), var(--lavender)); }
+.bar-az { background: linear-gradient(90deg, var(--lavender), var(--pink)); }
+.breakdown-val { font-size: 12px; color: var(--text2); font-weight: 600; width: 46px; text-align: right; flex-shrink: 0; }
+
+/* ── SCORE DIST ──────────────────────────────────────────── */
+.score-dist {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--border2);
+}
+.dist-label { font-size: 11px; color: var(--muted); margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.1em; }
+.dist-pills { display: flex; gap: 10px; flex-wrap: wrap; }
+.dist-pill {
+  padding: 5px 14px;
+  border-radius: 99px;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+}
+.dist-pill span { color: var(--muted); font-weight: 400; }
+
+/* ── CHART ───────────────────────────────────────────────── */
+#comfort-chart { width: 100%; height: 200px; display: block; }
+
+/* ── MAP ─────────────────────────────────────────────────── */
+#map-container {
+  width: 100%;
+  height: 460px;
+  border-radius: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  position: relative;
+  box-shadow: var(--shadow-lav);
+}
+#map { width: 100%; height: 100%; }
+.map-legend {
+  position: absolute;
+  bottom: 16px; left: 16px;
+  background: rgba(255,255,255,0.92);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 12px 16px;
+  backdrop-filter: blur(8px);
+  font-size: 12px;
+  z-index: 10;
+  box-shadow: var(--shadow-lav);
+}
+.legend-title {
+  color: var(--lav2);
+  letter-spacing: 0.12em;
+  font-size: 10px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+.legend-gradient {
+  width: 140px; height: 8px;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--pink2), var(--lavender), var(--blue));
+  margin-bottom: 5px;
+}
+.legend-labels { display: flex; justify-content: space-between; color: var(--muted); font-size: 10px; }
+
+/* ── FREQ ────────────────────────────────────────────────── */
+.freq-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; }
+.freq-box {
+  border-radius: 18px;
+  padding: 22px 18px;
+  text-align: center;
+  border: 1px solid var(--border2);
+  position: relative;
+  overflow: hidden;
+}
+.freq-box::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0.08;
+}
+.freq-pink-bg { background: rgba(255,179,198,0.12); }
+.freq-pink-bg::before { background: var(--pink); }
+.freq-lav-bg  { background: rgba(199,125,255,0.10); }
+.freq-lav-bg::before  { background: var(--lavender); }
+.freq-blue-bg { background: rgba(76,201,240,0.10); }
+.freq-blue-bg::before { background: var(--blue); }
+.freq-icon { font-size: 30px; margin-bottom: 10px; position: relative; }
+.freq-name { font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 0.10em; margin-bottom: 10px; position: relative; }
+.freq-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 900;
+  font-style: italic;
+  position: relative;
+}
+.freq-pink { background: linear-gradient(135deg, var(--pink2), var(--lavender)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.freq-lav  { background: linear-gradient(135deg, var(--lavender), var(--blue)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.freq-blue { background: linear-gradient(135deg, var(--blue), var(--lavender)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.freq-desc { font-size: 11px; color: var(--muted); margin-top: 6px; position: relative; }
+
+/* ── CHIPS ───────────────────────────────────────────────── */
+.chip-row { display: flex; flex-wrap: wrap; gap: 10px; }
+.chip {
+  padding: 8px 18px;
+  border-radius: 99px;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+}
+.chip-pink  { background: rgba(255,179,198,0.18); color: var(--pink2); }
+.chip-lav   { background: rgba(199,125,255,0.14); color: var(--lav2); }
+.chip-blue  { background: rgba(76,201,240,0.14);  color: var(--blue2); }
+
+/* ── QUALITY ─────────────────────────────────────────────── */
+.quality-bars { display: flex; flex-direction: column; gap: 14px; }
+.quality-row { display: flex; align-items: center; gap: 14px; }
+.quality-label { font-size: 12px; color: var(--text2); width: 110px; flex-shrink: 0; font-weight: 500; }
+.quality-track { flex: 1; height: 8px; background: var(--lav3); border-radius: 99px; overflow: hidden; }
+.quality-fill { height: 100%; border-radius: 99px; }
+.quality-pct { font-size: 13px; font-weight: 700; width: 44px; text-align: right; flex-shrink: 0; }
+
+/* ── TABLE ───────────────────────────────────────────────── */
+.data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+.data-table th {
+  text-align: left; padding: 10px 14px;
+  color: var(--lav2); font-size: 10px;
+  letter-spacing: 0.15em; text-transform: uppercase;
+  border-bottom: 1px solid var(--border);
+  font-weight: 600;
+}
+.data-table td { padding: 10px 14px; border-bottom: 1px solid var(--border2); color: var(--text2); }
+.data-table tr:hover td { background: var(--bg2); color: var(--text); }
+.score-pill {
+  display: inline-block; padding: 3px 12px;
+  border-radius: 99px; font-weight: 700; font-size: 12px;
+}
+
+/* ── SURFACE TAG ─────────────────────────────────────────── */
+.surface-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  border-radius: 99px;
+  background: var(--grad-soft);
+  border: 1px solid var(--border);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lav2);
+  margin-top: 16px;
+}
+
+/* ── HIDDEN / LOADING ────────────────────────────────────── */
+.hidden { display: none !important; }
+#loading {
+  position: fixed; inset: 0;
+  background: rgba(255,255,255,0.92);
+  backdrop-filter: blur(12px);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  z-index: 999; gap: 16px;
+}
+.spinner {
+  width: 48px; height: 48px;
+  border: 3px solid var(--lav3);
+  border-top-color: var(--lavender);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-text {
+  font-family: 'Playfair Display', serif;
+  font-style: italic;
+  font-size: 18px;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ── REPLAY ──────────────────────────────────────────────── */
+.replay-bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+.replay-btn {
+  padding: 10px 24px;
+  border-radius: 99px;
+  border: none;
+  background: var(--grad-main);
+  color: white;
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: var(--shadow-lav);
+  letter-spacing: 0.04em;
+}
+.replay-btn:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(199,125,255,0.35); }
+.replay-btn.playing { background: linear-gradient(135deg, #ff8fab, #c77dff); }
+.replay-reset-btn {
+  padding: 10px 18px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--lav2);
+  font-family: 'Inter', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.replay-reset-btn:hover { background: var(--lav3); }
+.replay-speed-wrap {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.replay-speed-label { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-right: 4px; }
+.speed-pill {
+  padding: 6px 12px;
+  border-radius: 99px;
+  border: 1px solid var(--border);
+  background: var(--bg2);
+  color: var(--text2);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.speed-pill:hover { background: var(--lav3); color: var(--lav2); }
+.speed-pill.active { background: var(--grad-soft); border-color: var(--lavender); color: var(--lav2); }
+
+.replay-progress-wrap { margin-bottom: 14px; }
+.replay-progress-bg {
+  width: 100%;
+  height: 8px;
+  background: var(--lav3);
+  border-radius: 99px;
+  overflow: hidden;
+  cursor: pointer;
+  margin-bottom: 6px;
+}
+.replay-progress-fill {
+  height: 100%;
+  width: 0%;
+  background: var(--grad-main);
+  border-radius: 99px;
+  transition: width 0.1s linear;
+}
+.replay-time-labels {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.replay-live {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 14px 20px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.live-stat {
+  text-align: center;
+  padding: 0 20px;
+  border-right: 1px solid var(--border2);
+  flex-shrink: 0;
+}
+.live-stat:last-of-type { border-right: none; }
+.live-val {
+  font-family: 'Playfair Display', serif;
+  font-size: 24px;
+  font-weight: 900;
+  font-style: italic;
+  background: var(--grad-text);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  line-height: 1.1;
+}
+.live-lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; margin-top: 3px; }
+.live-status {
+  margin-left: auto;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--lav2);
+  padding: 8px 16px;
+  background: var(--lav3);
+  border-radius: 99px;
+  transition: all 0.3s;
+}
+.live-status.rough {
+  background: rgba(255,143,171,0.20);
+  color: var(--pink2);
+  animation: roughPulse 0.5s ease-in-out;
+}
+@keyframes roughPulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.08); }
+  100% { transform: scale(1); }
+}
+
+/* ── SCROLLBAR ───────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: var(--bg3); }
+::-webkit-scrollbar-thumb { background: var(--lavender); border-radius: 99px; opacity: 0.5; }
+
+/* ── RESPONSIVE ──────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .freq-grid { grid-template-columns: 1fr; }
+  .score-section { flex-direction: column; align-items: flex-start; }
+  .card { padding: 20px 18px; }
+}
+</style>
+</head>
+<body>
+
+<div id="loading" class="hidden">
+  <div class="spinner"></div>
+  <div class="loading-text">analysing your ride...</div>
+</div>
+
+<div class="page">
+
+  <!-- Hero -->
+  <header class="hero">
+    <div class="hero-brand">🐾 FWLI Biking Device</div>
+    <h1 class="hero-title">Ride</h1>
+    <div class="hero-title-line2">Report</div>
+    <div class="grad-line"></div>
+    <div class="hero-sub">Road Quality · Comfort Score · Frequency Analysis</div>
+  </header>
+
+  <!-- Upload -->
+  <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
+    <input type="file" id="file-input" accept=".csv">
+    <div class="upload-icon">🐱</div>
+    <div class="upload-label">Drop your ride CSV here</div>
+    <div class="upload-hint">or click to browse — supports FWLI v3.0 format</div>
+  </div>
+
+  <!-- Results -->
+  <div id="results" class="hidden">
+
+    <!-- Overview -->
+    <div class="card">
+      <div class="card-title">Ride Overview</div>
+      <div class="stat-grid">
+        <div class="stat-box"><div class="stat-val" id="stat-duration">—</div><div class="stat-label">Duration</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-points">—</div><div class="stat-label">Data Points</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-speed-avg">—</div><div class="stat-label">Avg Speed</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-speed-max">—</div><div class="stat-label">Max Speed</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-gps-pct">—</div><div class="stat-label">GPS Fix</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-sats">—</div><div class="stat-label">Avg Satellites</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-max-impact">—</div><div class="stat-label">Max Impact</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-temp">—</div><div class="stat-label">Temp Range</div></div>
+        <div class="stat-box"><div class="stat-val" id="stat-distance">—</div><div class="stat-label">Total Distance</div></div>
+      </div>
+    </div>
+
+    <!-- Comfort Score -->
+    <div class="card">
+      <div class="card-title">Comfort Score</div>
+      <div class="score-section">
+        <div class="score-ring-wrap">
+          <svg width="170" height="170" viewBox="0 0 170 170">
+            <defs>
+              <linearGradient id="ring-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%"   stop-color="#ff8fab"/>
+                <stop offset="50%"  stop-color="#c77dff"/>
+                <stop offset="100%" stop-color="#4cc9f0"/>
+              </linearGradient>
+            </defs>
+            <circle cx="85" cy="85" r="70" fill="none" stroke="#ede6f8" stroke-width="10"/>
+            <circle id="score-arc" cx="85" cy="85" r="70" fill="none"
+              stroke="url(#ring-grad)" stroke-width="10" stroke-linecap="round"
+              stroke-dasharray="439.82" stroke-dashoffset="439.82"
+              transform="rotate(-90 85 85)"
+              style="transition: stroke-dashoffset 1.6s cubic-bezier(0.16,1,0.3,1)"/>
+          </svg>
+          <div class="score-center">
+            <div class="score-number" id="score-display">—</div>
+            <div class="score-label">/ 100</div>
+          </div>
+        </div>
+        <div class="score-breakdown">
+          <div class="breakdown-row">
+            <div class="breakdown-name">Vertical</div>
+            <div class="breakdown-bar-wrap"><div class="breakdown-bar bar-ax" id="bar-ax" style="width:0%"></div></div>
+            <div class="breakdown-val" id="val-ax">—</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-name">Lateral</div>
+            <div class="breakdown-bar-wrap"><div class="breakdown-bar bar-ay" id="bar-ay" style="width:0%"></div></div>
+            <div class="breakdown-val" id="val-ay">—</div>
+          </div>
+          <div class="breakdown-row">
+            <div class="breakdown-name">Forward</div>
+            <div class="breakdown-bar-wrap"><div class="breakdown-bar bar-az" id="bar-az" style="width:0%"></div></div>
+            <div class="breakdown-val" id="val-az">—</div>
+          </div>
+          <div class="score-dist">
+            <div class="dist-label">Score distribution</div>
+            <div class="dist-pills">
+              <div class="dist-pill"><span style="background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700" id="score-p25">—</span> <span>P25</span></div>
+              <div class="dist-pill"><span style="background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700" id="score-med">—</span> <span>Median</span></div>
+              <div class="dist-pill"><span style="background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700" id="score-p75">—</span> <span>P75</span></div>
+              <div class="dist-pill"><span style="background:var(--grad-text);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-weight:700" id="score-p90">—</span> <span>P90</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Chart -->
+    <div class="card">
+      <div class="card-title">Comfort Over Time</div>
+      <canvas id="comfort-chart"></canvas>
+    </div>
+
+    <!-- Map + Replay -->
+    <div class="card">
+      <div class="card-title">Route Map &amp; Ride Replay</div>
+
+      <!-- Replay controls -->
+      <div class="replay-bar">
+        <button class="replay-btn" id="replay-btn" onclick="toggleReplay()">▶ Play Ride</button>
+        <div class="replay-speed-wrap">
+          <span class="replay-speed-label">Speed</span>
+          <button class="speed-pill" onclick="setSpeed(10)"  id="sp-10">10×</button>
+          <button class="speed-pill active" onclick="setSpeed(30)" id="sp-30">30×</button>
+          <button class="speed-pill" onclick="setSpeed(60)"  id="sp-60">60×</button>
+          <button class="speed-pill" onclick="setSpeed(120)" id="sp-120">120×</button>
+        </div>
+        <button class="replay-reset-btn" onclick="resetReplay()">↺ Reset</button>
+      </div>
+
+      <!-- Progress bar -->
+      <div class="replay-progress-wrap">
+        <div class="replay-progress-bg">
+          <div class="replay-progress-fill" id="replay-progress"></div>
+        </div>
+        <div class="replay-time-labels">
+          <span id="replay-time-current">0:00</span>
+          <span id="replay-time-total">—</span>
+        </div>
+      </div>
+
+      <!-- Live stats panel -->
+      <div class="replay-live" id="replay-live">
+        <div class="live-stat">
+          <div class="live-val" id="live-score">—</div>
+          <div class="live-lbl">Comfort</div>
+        </div>
+        <div class="live-stat">
+          <div class="live-val" id="live-speed">—</div>
+          <div class="live-lbl">km/h</div>
+        </div>
+        <div class="live-stat">
+          <div class="live-val" id="live-ax">—</div>
+          <div class="live-lbl">AX g</div>
+        </div>
+        <div class="live-stat">
+          <div class="live-val" id="live-dist">—</div>
+          <div class="live-lbl">km so far</div>
+        </div>
+        <div class="live-status" id="live-status">🐱 Ready</div>
+      </div>
+
+      <!-- Map -->
+      <div id="map-container">
+        <div id="map"></div>
+        <div class="map-legend">
+          <div class="legend-title">Comfort Score</div>
+          <div class="legend-gradient"></div>
+          <div class="legend-labels"><span>Rough</span><span>Smooth</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Frequency -->
+    <div class="card">
+      <div class="card-title">Frequency Analysis</div>
+      <div class="freq-grid">
+        <div class="freq-box freq-pink-bg">
+          <div class="freq-icon">🕳️</div>
+          <div class="freq-name">Potholes & Large Bumps</div>
+          <div class="freq-val freq-pink" id="freq-low">—</div>
+          <div class="freq-desc">1–5 Hz band energy</div>
+        </div>
+        <div class="freq-box freq-lav-bg">
+          <div class="freq-icon">🛣️</div>
+          <div class="freq-name">Rough Pavement</div>
+          <div class="freq-val freq-lav" id="freq-mid">—</div>
+          <div class="freq-desc">5–15 Hz band energy</div>
+        </div>
+        <div class="freq-box freq-blue-bg">
+          <div class="freq-icon">✨</div>
+          <div class="freq-name">Surface Texture</div>
+          <div class="freq-val freq-blue" id="freq-high">—</div>
+          <div class="freq-desc">Dominant frequency</div>
+        </div>
+      </div>
+      <div class="surface-tag">🐾 <span id="surface-class">—</span></div>
+    </div>
+
+    <!-- Events -->
+    <div class="card">
+      <div class="card-title">Detected Events</div>
+      <div class="chip-row" id="events-row"></div>
+    </div>
+
+    <!-- Sensor Quality -->
+    <div class="card">
+      <div class="card-title">Sensor Quality</div>
+      <div class="quality-bars" id="quality-bars"></div>
+      <div style="margin-top:18px;padding:14px 18px;background:var(--bg2);border-radius:14px;font-size:12px;color:var(--text2);line-height:1.7;border:1px solid var(--border2);" id="cal-info">
+        Calibration data will appear here.
+      </div>
+    </div>
+
+    <!-- Best sections -->
+    <div class="card">
+      <div class="card-title">Smoothest Sections</div>
+      <table class="data-table" id="best-table">
+        <thead><tr><th>Score</th><th>Speed</th><th>Latitude</th><th>Longitude</th><th>Maps</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+    <!-- Worst sections -->
+    <div class="card">
+      <div class="card-title">Roughest Sections</div>
+      <table class="data-table" id="worst-table">
+        <thead><tr><th>Score</th><th>Speed</th><th>Latitude</th><th>Longitude</th><th>Maps</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+// ═══════════════════════════════════════════════════════════
+// ALGORITHM v2.0
+// ═══════════════════════════════════════════════════════════
+
+function haversine(lat1,lon1,lat2,lon2){
+  const R=6371000,p1=lat1*Math.PI/180,p2=lat2*Math.PI/180;
+  const dp=(lat2-lat1)*Math.PI/180,dl=(lon2-lon1)*Math.PI/180;
+  const a=Math.sin(dp/2)**2+Math.cos(p1)*Math.cos(p2)*Math.sin(dl/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+function highpass(vals,alpha=0.85){
+  const out=[];let f=0,prev=vals[0];
+  for(const v of vals){f=alpha*(f+v-prev);prev=v;out.push(f);}
+  return out;
+}
+function rollingMean(arr,w){
+  return arr.map((_,i)=>{const sl=arr.slice(Math.max(0,i-w),i+w+1);return sl.reduce((a,b)=>a+b,0)/sl.length;});
+}
+function percentile(arr,p){const s=[...arr].sort((a,b)=>a-b);return s[Math.floor(s.length*p/100)];}
+function clamp(v,lo,hi){return Math.max(lo,Math.min(hi,v));}
+function rescale(raw,lo,hi){return clamp((raw-lo)/(hi-lo)*100,0,100);}
+
+function parseCSV(text){
+  const lines=text.trim().split('\n');
+  let calLine=null,header=null;const rows=[];
+  for(let i=0;i<lines.length;i++){
+    const line=lines[i].trim();
+    if(!line)continue;
+    if(line.startsWith('#')){calLine=line;continue;}
+    if(!header){header=line.split(',');continue;}
+    const parts=line.split(',');
+    if(parts.length<20)continue;
+    const idx=n=>header.indexOf(n);
+    const flt=k=>{const v=parts[idx(k)];return v?parseFloat(v):null;};
+    const int=k=>{const v=parts[idx(k)];return v?parseInt(v):0;};
+    rows.push({
+      ms:int('millis_ms'),fix:int('gps_fix'),
+      lat:flt('latitude'),lon:flt('longitude'),alt:flt('altitude_m'),
+      speed:flt('speed_kmh'),sats:int('satellites'),hdop:flt('hdop'),
+      ax_g:flt('ax_g'),ay_g:flt('ay_g'),az_g:flt('az_g'),
+      mag:flt('accel_mag_g'),temp:flt('temp_c'),
+    });
+  }
+  return{rows,calLine};
+}
+
+function parseCalibration(calLine){
+  if(!calLine)return null;
+  const get=n=>{const m=calLine.match(new RegExp(n+'=([\\-\\d.]+)'));return m?parseFloat(m[1]):0;};
+  return{ax:get('CAL_AX'),ay:get('CAL_AY'),az:get('CAL_AZ'),gx:get('CAL_GX'),gy:get('CAL_GY'),gz:get('CAL_GZ')};
+}
+
+function analyse(rows){
+  // Step 1 — filter
+  const valid=[];
+  for(let i=0;i<rows.length;i++){
+    const r=rows[i];
+    if(!r.fix)continue;
+    if(r.hdop&&r.hdop>3.0)continue;
+    if(!r.speed||r.speed<1.0)continue;
+    const near=rows.slice(Math.max(0,i-3),i+4);
+    if(near.some(n=>n.speed<0.5))continue;
+    valid.push(r);
+  }
+  if(valid.length<100)return null;
+
+  // Step 2 — slope compensation
+  const alts=valid.map(r=>r.alt||0);
+  const smoothAlt=rollingMean(alts,20);
+  const az_comp=valid.map((r,i)=>{
+    if(i===0||!valid[i-1].lat||!r.lat)return r.az_g||0;
+    const dist=haversine(valid[i-1].lat,valid[i-1].lon,r.lat,r.lon);
+    if(dist<0.1)return r.az_g||0;
+    const altDiff=smoothAlt[i]-smoothAlt[i-1];
+    let slope=Math.atan2(altDiff,dist);
+    slope=clamp(slope,-Math.PI/9,Math.PI/9);
+    return(r.az_g||0)-Math.sin(slope);
+  });
+
+  // Step 3 — highpass
+  const ax_hp=highpass(valid.map(r=>r.ax_g||0));
+  const ay_hp=highpass(valid.map(r=>r.ay_g||0));
+  const az_hp=highpass(az_comp);
+
+  // Step 4+5 — rolling RMS + score
+  const WIN=50,STEP=25;const windows=[];
+  for(let i=WIN;i<ax_hp.length-WIN;i+=STEP){
+    const ax=ax_hp.slice(i-WIN,i),ay=ay_hp.slice(i-WIN,i),az=az_hp.slice(i-WIN,i);
+    const rms=a=>Math.sqrt(a.reduce((s,v)=>s+v*v,0)/a.length);
+    const ax_r=rms(ax),ay_r=rms(ay),az_r=rms(az);
+    const raw=100-(ax_r*300+az_r*150+ay_r*50);
+    windows.push({ms:valid[i].ms,lat:valid[i].lat,lon:valid[i].lon,speed:valid[i].speed,raw,ax_r,ay_r,az_r});
+  }
+
+  // Step 6 — adaptive rescale (mean → ~90)
+  const raws=windows.map(w=>w.raw);
+  const rawMean=raws.reduce((a,b)=>a+b,0)/raws.length;
+  const rawStd=Math.sqrt(raws.map(v=>(v-rawMean)**2).reduce((a,b)=>a+b,0)/raws.length);
+  const lo=rawMean-2.5*rawStd,hi=rawMean+0.5*rawStd;
+  windows.forEach(w=>{w.score=rescale(w.raw,lo,hi);});
+
+  // Step 7 — frequency
+  const crossings=ax_hp.reduce((c,v,i)=>i>0&&ax_hp[i-1]*v<0?c+1:c,0);
+  const dur_s=(valid[valid.length-1].ms-valid[0].ms)/1000;
+  const domFreq=crossings/(2*dur_s);
+  const bRMS=(arr,wp,ws)=>{
+    const slow=rollingMean(arr,ws),fast=rollingMean(arr,wp);
+    const band=arr.map((v,i)=>fast[i]-slow[i]);
+    return Math.sqrt(band.reduce((s,v)=>s+v*v,0)/band.length);
+  };
+  const freqLow=bRMS(ax_hp,2,10),freqMid=bRMS(ax_hp,1,3);
+  let surfaceClass='Smooth surface';
+  if(domFreq>6)surfaceClass='Fine texture / cobblestone';
+  else if(domFreq>3)surfaceClass='Rough pavement texture';
+  else if(domFreq>1)surfaceClass='Moderate — occasional bumps';
+  else surfaceClass='Smooth asphalt';
+
+  const scores=windows.map(w=>w.score);
+  const meanScore=scores.reduce((a,b)=>a+b,0)/scores.length;
+  return{
+    windows,valid,scores,meanScore,
+    p25:percentile(scores,25),p50:percentile(scores,50),
+    p75:percentile(scores,75),p90:percentile(scores,90),
+    freqLow,freqMid,domFreq,surfaceClass,
+    axRms:windows.reduce((s,w)=>s+w.ax_r,0)/windows.length,
+    ayRms:windows.reduce((s,w)=>s+w.ay_r,0)/windows.length,
+    azRms:windows.reduce((s,w)=>s+w.az_r,0)/windows.length,
+  };
+}
+
+// ═══════════════════════════════════════════════════════════
+// RENDER
+// ═══════════════════════════════════════════════════════════
+
+let map=null;
+
+function scoreColor(s){
+  if(s>=80)return'#0096c7';
+  if(s>=60)return'#c77dff';
+  if(s>=40)return'#e08ffd';
+  if(s>=20)return'#ff8fab';
+  return'#ff2d78';
+}
+
+function renderResults(rows,cal,result){
+  document.getElementById('results').classList.remove('hidden');
+
+  // stats
+  const totalMs=rows[rows.length-1].ms-rows[0].ms;
+  const mins=Math.floor(totalMs/60000),secs=Math.floor((totalMs%60000)/1000);
+  document.getElementById('stat-duration').textContent=`${mins}m ${secs}s`;
+  document.getElementById('stat-points').textContent=rows.length.toLocaleString();
+  const fixRows=rows.filter(r=>r.fix&&r.speed);
+  const moving=fixRows.filter(r=>r.speed>2);
+  document.getElementById('stat-speed-avg').textContent=(moving.length?(moving.reduce((s,r)=>s+r.speed,0)/moving.length).toFixed(1):'—')+' km/h';
+  document.getElementById('stat-speed-max').textContent=(fixRows.length?Math.max(...fixRows.map(r=>r.speed)).toFixed(1):'—')+' km/h';
+  document.getElementById('stat-gps-pct').textContent=(rows.filter(r=>r.fix).length/rows.length*100).toFixed(0)+'%';
+  document.getElementById('stat-sats').textContent=fixRows.length?(fixRows.reduce((s,r)=>s+r.sats,0)/fixRows.length).toFixed(1):'—';
+  const maxImpact=Math.max(...rows.map(r=>r.mag||0)).toFixed(3);
+  document.getElementById('stat-max-impact').textContent=maxImpact+'g';
+  const temps=rows.filter(r=>r.temp).map(r=>r.temp);
+  document.getElementById('stat-temp').textContent=temps.length?`${Math.min(...temps).toFixed(0)}–${Math.max(...temps).toFixed(0)}°C`:'—';
+
+  // total distance using haversine between consecutive GPS points
+  let totalKm=0;
+  const gpsOnly=rows.filter(r=>r.fix&&r.lat&&r.lon);
+  for(let i=1;i<gpsOnly.length;i++){
+    const d=haversine(gpsOnly[i-1].lat,gpsOnly[i-1].lon,gpsOnly[i].lat,gpsOnly[i].lon);
+    if(d<50)totalKm+=d/1000; // ignore GPS jumps >50m
+  }
+  document.getElementById('stat-distance').textContent=totalKm.toFixed(2)+' km';
+
+  // score ring
+  const mean=result.meanScore;
+  document.getElementById('score-display').textContent=mean.toFixed(0);
+  const circ=2*Math.PI*70;
+  setTimeout(()=>{document.getElementById('score-arc').style.strokeDashoffset=circ*(1-mean/100);},100);
+  document.getElementById('score-p25').textContent=result.p25.toFixed(0);
+  document.getElementById('score-med').textContent=result.p50.toFixed(0);
+  document.getElementById('score-p75').textContent=result.p75.toFixed(0);
+  document.getElementById('score-p90').textContent=result.p90.toFixed(0);
+
+  // breakdown bars
+  const maxR=Math.max(result.axRms,result.ayRms,result.azRms,0.001);
+  setTimeout(()=>{
+    document.getElementById('bar-ax').style.width=Math.max(0,100-(result.axRms/maxR)*100)+'%';
+    document.getElementById('bar-ay').style.width=Math.max(0,100-(result.ayRms/maxR)*100)+'%';
+    document.getElementById('bar-az').style.width=Math.max(0,100-(result.azRms/maxR)*100)+'%';
+  },200);
+  document.getElementById('val-ax').textContent=result.axRms.toFixed(4)+'g';
+  document.getElementById('val-ay').textContent=result.ayRms.toFixed(4)+'g';
+  document.getElementById('val-az').textContent=result.azRms.toFixed(4)+'g';
+
+  // chart
+  const canvas=document.getElementById('comfort-chart');
+  const ctx=canvas.getContext('2d');
+  canvas.width=canvas.offsetWidth*devicePixelRatio;
+  canvas.height=canvas.offsetHeight*devicePixelRatio;
+  ctx.scale(devicePixelRatio,devicePixelRatio);
+  const W=canvas.offsetWidth,H=canvas.offsetHeight;
+  ctx.clearRect(0,0,W,H);
+  // grid
+  ctx.strokeStyle='rgba(199,125,255,0.12)';ctx.lineWidth=1;
+  [25,50,75,100].forEach(y=>{
+    const py=H-(y/100)*H;
+    ctx.beginPath();ctx.moveTo(0,py);ctx.lineTo(W,py);ctx.stroke();
+    ctx.fillStyle='rgba(0,0,0,0.2)';ctx.font='10px Inter,sans-serif';
+    ctx.fillText(y,4,py-3);
+  });
+  const sc=result.windows.map(w=>w.score);
+  const n=sc.length;if(n<2)return;
+  // fill
+  const grad=ctx.createLinearGradient(0,0,0,H);
+  grad.addColorStop(0,'rgba(199,125,255,0.25)');
+  grad.addColorStop(1,'rgba(199,125,255,0.02)');
+  ctx.beginPath();
+  sc.forEach((s,i)=>{const x=(i/n)*W,y=H-(s/100)*H;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.lineTo(W,H);ctx.lineTo(0,H);ctx.closePath();
+  ctx.fillStyle=grad;ctx.fill();
+  // line
+  const lg=ctx.createLinearGradient(0,0,W,0);
+  lg.addColorStop(0,'#ff8fab');lg.addColorStop(0.5,'#c77dff');lg.addColorStop(1,'#4cc9f0');
+  ctx.beginPath();
+  sc.forEach((s,i)=>{const x=(i/n)*W,y=H-(s/100)*H;i===0?ctx.moveTo(x,y):ctx.lineTo(x,y);});
+  ctx.strokeStyle=lg;ctx.lineWidth=2.5;ctx.stroke();
+
+  // map
+  if(!map){
+    map=L.map('map',{zoomControl:true});
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
+      attribution:'© CartoDB',subdomains:'abcd',maxZoom:19
+    }).addTo(map);
+  } else {
+    map.eachLayer(l=>{if(!(l instanceof L.TileLayer))map.removeLayer(l);});
+  }
+  const pts=result.windows.filter(w=>w.lat&&w.lon);
+  if(pts.length>0){
+    map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lon])),{padding:[30,30]});
+    // Draw all dots with time in popup
+    pts.forEach((w,i)=>{
+      const col=scoreColor(w.score);
+      const elapsed=w.ms-pts[0].ms;
+      const mm=Math.floor(elapsed/60000),ss=Math.floor((elapsed%60000)/1000);
+      const timeStr=`${mm}:${ss.toString().padStart(2,'0')}`;
+      const roughLabel=w.score<40?'🐶 Rough!':w.score<65?'🐾 Moderate':'🐱 Smooth';
+      L.circleMarker([w.lat,w.lon],{
+        radius:5,fillColor:col,color:'white',fillOpacity:0.85,weight:1
+      }).bindPopup(
+        `<div style="font-family:Inter,sans-serif;font-size:12px;min-width:150px;">
+          <b style="color:${col};font-size:14px;">${w.score.toFixed(0)}/100</b>
+          <span style="color:#a89bb8;margin-left:6px;">${roughLabel}</span><br>
+          <span style="color:#6b5c7e;">⏱ ${timeStr} into ride</span><br>
+          <span style="color:#6b5c7e;">🚴 ${w.speed.toFixed(1)} km/h</span><br>
+          <span style="color:#a89bb8;font-size:10px;">${w.lat.toFixed(5)}, ${w.lon.toFixed(5)}</span>
+        </div>`
+      ).addTo(map);
+    });
+  }
+
+  // ── REPLAY ENGINE ─────────────────────────────────────────
+  initReplay(pts, rows);
+
+  // frequency
+  document.getElementById('freq-low').textContent=(result.freqLow*100).toFixed(1)+'%';
+  document.getElementById('freq-mid').textContent=(result.freqMid*100).toFixed(1)+'%';
+  document.getElementById('freq-high').textContent=result.domFreq.toFixed(2)+' Hz';
+  document.getElementById('surface-class').textContent=result.surfaceClass;
+
+  // events
+  const ax=rows.map(r=>r.ax_g||0),ay=rows.map(r=>r.ay_g||0),az=rows.map(r=>r.az_g||0);
+  document.getElementById('events-row').innerHTML=`
+    <div class="chip chip-pink">🐱 ${ax.filter(v=>Math.abs(v)>0.15).length.toLocaleString()} bumps</div>
+    <div class="chip chip-lav">🐶 ${ax.filter(v=>Math.abs(v)>0.30).length.toLocaleString()} hard impacts</div>
+    <div class="chip chip-blue">🐾 ${az.filter(v=>Math.abs(v)>0.15).length.toLocaleString()} braking events</div>
+    <div class="chip chip-pink">🐱 ${ay.filter(v=>Math.abs(v)>0.15).length.toLocaleString()} lateral moves</div>
+  `;
+
+  // sensor quality
+  if(cal){
+    const ag=cal.ax/16384,ayg=cal.ay/16384,azg=cal.az/16384;
+    const tot=Math.sqrt(ag**2+ayg**2+azg**2);
+    const axp=Math.abs(ag)/tot*100,ayp=Math.abs(ayg)/tot*100,azp=Math.abs(azg)/tot*100,sigp=tot*100;
+    const qc=(p,good)=>{
+      if(good)return p>80?'#0096c7':p>60?'#c77dff':'#ff8fab';
+      return p<20?'#0096c7':p<35?'#c77dff':'#ff8fab';
+    };
+    document.getElementById('quality-bars').innerHTML=`
+      <div class="quality-row"><div class="quality-label">Signal capture</div><div class="quality-track"><div class="quality-fill" style="width:${sigp.toFixed(0)}%;background:linear-gradient(90deg,var(--pink),var(--lavender))"></div></div><div class="quality-pct" style="color:${qc(sigp,true)}">${sigp.toFixed(0)}%</div></div>
+      <div class="quality-row"><div class="quality-label">AX vertical</div><div class="quality-track"><div class="quality-fill" style="width:${axp.toFixed(0)}%;background:linear-gradient(90deg,var(--lavender),var(--blue))"></div></div><div class="quality-pct" style="color:${qc(axp,true)}">${axp.toFixed(0)}%</div></div>
+      <div class="quality-row"><div class="quality-label">AY lateral</div><div class="quality-track"><div class="quality-fill" style="width:${ayp.toFixed(0)}%;background:linear-gradient(90deg,var(--pink),var(--pink2))"></div></div><div class="quality-pct" style="color:${qc(ayp,false)}">${ayp.toFixed(0)}%</div></div>
+      <div class="quality-row"><div class="quality-label">AZ forward</div><div class="quality-track"><div class="quality-fill" style="width:${azp.toFixed(0)}%;background:linear-gradient(90deg,var(--blue),var(--lavender))"></div></div><div class="quality-pct" style="color:${qc(azp,false)}">${azp.toFixed(0)}%</div></div>
+    `;
+    const meanMag=(rows.filter(r=>r.mag).reduce((s,r,i,a)=>s+r.mag/a.length,0)).toFixed(4);
+    document.getElementById('cal-info').innerHTML=
+      `<span style="color:var(--lav2);font-weight:600">Calibration reference</span> — AX=${cal.ax.toFixed(1)} AY=${cal.ay.toFixed(1)} AZ=${cal.az.toFixed(1)} GX=${cal.gx.toFixed(1)} GY=${cal.gy.toFixed(1)} GZ=${cal.gz.toFixed(1)}<br>
+       <span style="color:var(--muted)">Noise floor ≈ ${meanMag}g mean magnitude · Max impact ${maxImpact}g</span>`;
+  }
+
+  // tables
+  function fillTable(id,items){
+    const tbody=document.querySelector(`#${id} tbody`);
+    tbody.innerHTML='';
+    items.forEach(w=>{
+      const col=scoreColor(w.score);
+      const url=`https://maps.google.com/?q=${w.lat},${w.lon}`;
+      tbody.innerHTML+=`<tr>
+        <td><span class="score-pill" style="background:${col}22;color:${col};border:1px solid ${col}55">${w.score.toFixed(0)}</span></td>
+        <td>${w.speed.toFixed(1)} km/h</td>
+        <td>${w.lat.toFixed(5)}</td>
+        <td>${w.lon.toFixed(5)}</td>
+        <td><a href="${url}" target="_blank" style="color:var(--lav2);font-size:12px;font-weight:500">View ↗</a></td>
+      </tr>`;
+    });
+  }
+  const sorted=[...result.windows].filter(w=>w.lat).sort((a,b)=>b.score-a.score);
+  fillTable('best-table',sorted.slice(0,8));
+  fillTable('worst-table',sorted.slice(-8).reverse());
+}
+
+// ═══════════════════════════════════════════════════════════
+// REPLAY ENGINE — setInterval based, works at all scroll positions
+// ═══════════════════════════════════════════════════════════
+
+let replayState = {
+  pts:          [],
+  rawRows:      [],
+  playing:      false,
+  intervalId:   null,
+  currentIdx:   0,
+  speed:        30,
+  riderMarker:  null,
+  trailLayer:   null,
+  totalMs:      0,
+  distKm:       0,
+  startMs:      0,
+};
+
+// How often the interval fires (ms of real time)
+const TICK_MS = 100;
+
+function initReplay(pts, rawRows) {
+  // stop any running replay first
+  clearInterval(replayState.intervalId);
+
+  replayState.pts       = pts;
+  replayState.rawRows   = rawRows;
+  replayState.playing   = false;
+  replayState.currentIdx = 0;
+  replayState.distKm    = 0;
+  replayState.intervalId = null;
+
+  if (pts.length < 2) return;
+
+  replayState.totalMs = pts[pts.length-1].ms - pts[0].ms;
+  replayState.startMs = pts[0].ms;
+
+  // Total time label
+  document.getElementById('replay-time-total').textContent = fmtTime(replayState.totalMs);
+
+  // Trail layer
+  if (replayState.trailLayer) map.removeLayer(replayState.trailLayer);
+  replayState.trailLayer = L.layerGroup().addTo(map);
+
+  // Rider marker
+  if (replayState.riderMarker) map.removeLayer(replayState.riderMarker);
+  const icon = L.divIcon({
+    html: '<div style="font-size:24px;line-height:1;filter:drop-shadow(0 2px 8px rgba(199,125,255,0.7));">🐱</div>',
+    iconSize: [28,28], iconAnchor: [14,14], className: ''
+  });
+  replayState.riderMarker = L.marker(
+    [pts[0].lat, pts[0].lon],
+    {icon, zIndexOffset: 1000}
+  ).addTo(map);
+
+  updateLivePanel(pts[0]);
+}
+
+function fmtTime(ms) {
+  const mm = Math.floor(ms / 60000);
+  const ss = Math.floor((ms % 60000) / 1000);
+  return `${mm}:${ss.toString().padStart(2,'0')}`;
+}
+
+function updateLivePanel(w) {
+  if (!w) return;
+
+  document.getElementById('live-score').textContent = w.score != null ? w.score.toFixed(0) : '—';
+  document.getElementById('live-speed').textContent = w.speed ? w.speed.toFixed(1) : '—';
+  document.getElementById('live-dist').textContent  = replayState.distKm.toFixed(2);
+
+  // nearest raw row for AX
+  const rows = replayState.rawRows;
+  if (rows.length) {
+    let best = rows[0], bestDiff = Math.abs(rows[0].ms - w.ms);
+    for (const r of rows) {
+      const d = Math.abs(r.ms - w.ms);
+      if (d < bestDiff) { bestDiff = d; best = r; }
+      if (d > bestDiff + 500) break; // rows are sorted, stop early
+    }
+    document.getElementById('live-ax').textContent = best.ax_g != null ? best.ax_g.toFixed(3) : '—';
+  }
+
+  // status badge — no animation class toggle to avoid reflow
+  const el = document.getElementById('live-status');
+  if (w.score < 35) {
+    el.textContent = '🐶 Rough road!';
+    el.style.background = 'rgba(255,143,171,0.25)';
+    el.style.color = '#ff8fab';
+  } else if (w.score < 60) {
+    el.textContent = '🐾 Bumpy';
+    el.style.background = 'rgba(255,179,198,0.20)';
+    el.style.color = '#ff8fab';
+  } else if (w.score < 80) {
+    el.textContent = '🐱 Moderate';
+    el.style.background = 'var(--lav3)';
+    el.style.color = 'var(--lav2)';
+  } else {
+    el.textContent = '🐱 Smooth~';
+    el.style.background = 'var(--lav3)';
+    el.style.color = 'var(--lav2)';
+  }
+}
+
+function replayTick() {
+  const rs  = replayState;
+  const pts = rs.pts;
+  if (!rs.playing || !pts.length) return;
+
+  // Advance by exactly one step regardless of time gaps
+  // This prevents large gaps from skipping the whole array in one tick
+  const stepsPerTick = Math.max(1, Math.round(rs.speed / 10));
+  const maxStep = Math.min(stepsPerTick, pts.length - 1 - rs.currentIdx);
+
+  for (let s = 0; s < maxStep; s++) {
+    const prev = pts[rs.currentIdx];
+    rs.currentIdx++;
+    const curr = pts[rs.currentIdx];
+
+    // Draw trail segment only if points are geographically close
+    // (skip drawing across large GPS gaps)
+    if (prev.lat && curr.lat) {
+      const dist = haversine(prev.lat, prev.lon, curr.lat, curr.lon);
+      if (dist < 200) {
+        // only draw if less than 200m apart (filters GPS jumps)
+        L.polyline(
+          [[prev.lat, prev.lon], [curr.lat, curr.lon]],
+          { color: scoreColor(curr.score), weight: 6, opacity: 0.9 }
+        ).addTo(rs.trailLayer);
+        rs.distKm += dist / 1000;
+      }
+    }
+  }
+
+  const cur = pts[rs.currentIdx];
+
+  // Move rider marker
+  if (cur.lat) {
+    rs.riderMarker.setLatLng([cur.lat, cur.lon]);
+  }
+
+  // Update live panel
+  updateLivePanel(cur);
+
+  // Progress bar + time — based on index position not timestamps
+  // so gaps do not cause progress to jump
+  const pct = rs.currentIdx / (pts.length - 1) * 100;
+  const elapsed = cur.ms - rs.startMs;
+  document.getElementById('replay-progress').style.width = pct + '%';
+  document.getElementById('replay-time-current').textContent = fmtTime(elapsed);
+
+  // Finished?
+  if (rs.currentIdx >= pts.length - 1) {
+    clearInterval(rs.intervalId);
+    rs.intervalId = null;
+    rs.playing = false;
+    document.getElementById('replay-btn').textContent = '✓ Ride Complete';
+    document.getElementById('replay-btn').classList.remove('playing');
+    document.getElementById('live-status').textContent = '🐱 Finished!';
+  }
+}
+
+function toggleReplay() {
+  replayState.playing ? pauseReplay() : startReplay();
+}
+
+function startReplay() {
+  if (!replayState.pts.length) return;
+  replayState.playing = true;
+  document.getElementById('replay-btn').textContent = '⏸ Pause';
+  document.getElementById('replay-btn').classList.add('playing');
+  // setInterval fires regardless of scroll position or tab visibility
+  replayState.intervalId = setInterval(replayTick, TICK_MS);
+}
+
+function pauseReplay() {
+  replayState.playing = false;
+  clearInterval(replayState.intervalId);
+  replayState.intervalId = null;
+  document.getElementById('replay-btn').textContent = '▶ Resume';
+  document.getElementById('replay-btn').classList.remove('playing');
+}
+
+function resetReplay() {
+  clearInterval(replayState.intervalId);
+  replayState.intervalId = null;
+  replayState.playing    = false;
+  replayState.currentIdx = 0;
+  replayState.distKm     = 0;
+
+  if (replayState.trailLayer) replayState.trailLayer.clearLayers();
+
+  const pts = replayState.pts;
+  if (pts.length && replayState.riderMarker) {
+    replayState.riderMarker.setLatLng([pts[0].lat, pts[0].lon]);
+    map.fitBounds(L.latLngBounds(pts.map(p=>[p.lat,p.lon])), {padding:[30,30]});
+  }
+
+  document.getElementById('replay-progress').style.width   = '0%';
+  document.getElementById('replay-time-current').textContent = '0:00';
+  document.getElementById('replay-btn').textContent        = '▶ Play Ride';
+  document.getElementById('replay-btn').classList.remove('playing');
+  document.getElementById('live-score').textContent = '—';
+  document.getElementById('live-speed').textContent = '—';
+  document.getElementById('live-ax').textContent    = '—';
+  document.getElementById('live-dist').textContent  = '—';
+  const el = document.getElementById('live-status');
+  el.textContent = '🐱 Ready';
+  el.style.background = 'var(--lav3)';
+  el.style.color = 'var(--lav2)';
+}
+
+function setSpeed(s) {
+  replayState.speed = s;
+  document.querySelectorAll('.speed-pill').forEach(el => el.classList.remove('active'));
+  document.getElementById(`sp-${s}`).classList.add('active');
+}
+
+
+// ── File handling ─────────────────────────────────────────
+function processFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('loading').classList.remove('hidden');
+    setTimeout(()=>{
+      try{
+        const{rows,calLine}=parseCSV(e.target.result);
+        const cal=parseCalibration(calLine);
+        const result=analyse(rows);
+        if(!result||result.windows.length<5){
+          alert('Not enough valid GPS+moving data. Check file format or ride duration.');
+          document.getElementById('loading').classList.add('hidden');
+          return;
+        }
+        renderResults(rows,cal,result);
+        document.getElementById('loading').classList.add('hidden');
+        document.getElementById('results').scrollIntoView({behavior:'smooth'});
+      }catch(err){
+        alert('Error: '+err.message);
+        document.getElementById('loading').classList.add('hidden');
+        console.error(err);
+      }
+    },50);
+  };
+  reader.readAsText(file);
+}
+
+document.getElementById('file-input').addEventListener('change',e=>{if(e.target.files[0])processFile(e.target.files[0]);});
+const dz=document.getElementById('drop-zone');
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag');});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');if(e.dataTransfer.files[0])processFile(e.dataTransfer.files[0]);});
+</script>
+</body>
+</html>
