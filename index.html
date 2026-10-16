@@ -630,6 +630,7 @@ body::before {
   </header>
 
   <!-- Upload -->
+  <div id="sample-note" style="display:none;max-width:720px;margin:0 auto 14px;padding:10px 14px;border-radius:12px;background:rgba(199,125,255,0.10);color:#5a3d7a;font-size:14px;text-align:center">Showing a real recorded ride: Toronto waterfront, 23 June 2026 (61.6 min, 36,871 points). Drop your own ride CSV below to analyse it.</div>
   <div class="upload-zone" id="drop-zone" onclick="document.getElementById('file-input').click()">
     <input type="file" id="file-input" accept=".csv">
     <div class="upload-icon">🐱</div>
@@ -1070,8 +1071,8 @@ function renderResults(rows,cal,result){
   // map
   if(!map){
     map=L.map('map',{zoomControl:true});
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',{
-      attribution:'© CartoDB',subdomains:'abcd',maxZoom:19
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png',{
+      attribution:'© OpenStreetMap contributors',maxZoom:19
     }).addTo(map);
   } else {
     map.eachLayer(l=>{if(!(l instanceof L.TileLayer))map.removeLayer(l);});
@@ -1380,13 +1381,11 @@ function setSpeed(s) {
 
 
 // ── File handling ─────────────────────────────────────────
-function processFile(file){
-  const reader=new FileReader();
-  reader.onload=e=>{
+function processText(text,isSample){
     document.getElementById('loading').classList.remove('hidden');
     setTimeout(()=>{
       try{
-        const{rows,calLine}=parseCSV(e.target.result);
+        const{rows,calLine}=parseCSV(text);
         const cal=parseCalibration(calLine);
         const result=analyse(rows);
         if(!result||result.windows.length<5){
@@ -1396,16 +1395,23 @@ function processFile(file){
         }
         renderResults(rows,cal,result);
         document.getElementById('loading').classList.add('hidden');
-        document.getElementById('results').scrollIntoView({behavior:'smooth'});
+        const note=document.getElementById('sample-note');
+        if(note) note.style.display=isSample?'block':'none';
+        if(!isSample) document.getElementById('results').scrollIntoView({behavior:'smooth'});
       }catch(err){
-        alert('Error: '+err.message);
+        if(!isSample) alert('Error: '+err.message);
         document.getElementById('loading').classList.add('hidden');
         console.error(err);
       }
     },50);
-  };
+}
+function processFile(file){
+  const reader=new FileReader();
+  reader.onload=e=>processText(e.target.result,false);
   reader.readAsText(file);
 }
+// Show a real recorded ride by default: Toronto waterfront, 23 June 2026
+fetch('sample-ride.csv').then(r=>r.ok?r.text():null).then(t=>{if(t)processText(t,true);}).catch(()=>{});
 
 document.getElementById('file-input').addEventListener('change',e=>{if(e.target.files[0])processFile(e.target.files[0]);});
 const dz=document.getElementById('drop-zone');
